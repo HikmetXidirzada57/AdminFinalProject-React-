@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
-
 const Sidebar = () => {
   return (
     <div>
@@ -60,18 +59,18 @@ const Sidebar = () => {
                 className="menu-link"
                 to="/category"
               >
-                <i className="icon fas fa-list"></i>
-                <span className="text">Categories</span>
+                <i class="fas fa-layer-group"></i>
+                <span className="text  mx-2">Categories</span>
               </NavLink>
             </li>
             <li className="menu-item">
               <NavLink
                 activeClassName="active"
                 className="menu-link"
-                to="/orders"
+                to="/blogs"
               >
                 <i className="icon fas fa-bags-shopping"></i>
-                <span className="text">Orders</span>
+                <span className="text">Blogs</span>
               </NavLink>
             </li>
             <li className="menu-item">

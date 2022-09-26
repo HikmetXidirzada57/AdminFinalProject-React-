@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { courseListAction } from "../../Redux/Actions/CourseActions";
 import Loading from "../LoadingError/Loading";
 import Message from "../LoadingError/Error";
 import Product from "../products/Product";
+import { productListAction } from "../../Redux/Actions/ProductActions";
 const MainProducts = () => {
   const dispatch =useDispatch();
-  const {courses,loading,error}=useSelector(state=>state.courseList);
+  const {products,loading,error}=useSelector(state=>state.productList);
 
-  const courseDelete=useSelector(state=>state.courseDeleted);
-  const { error: errorDelete, course: successDelete } = courseDelete;
+  const productDelete=useSelector(state=>state.productDeleted);
+  const { error: errorDelete, product: successDelete } = productDelete;
 
 
   useEffect(() => {
-    dispatch(courseListAction())
+    dispatch(productListAction())
   }, [dispatch,successDelete])
   
 
@@ -67,7 +67,7 @@ const MainProducts = () => {
             <Message variant="alert-danger">{error}</Message>
           ) : (
             <div className="row">
-              {courses.map((product) => (
+              {products.map((product) => (
                 <Product product={product} key={product.id} />
               ))}
             </div>

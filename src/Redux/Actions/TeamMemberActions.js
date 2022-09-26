@@ -1,8 +1,8 @@
 import axios from "axios"
 import { BASE_URL } from "../../api/BaseConfig"
-import { INSTRUCTOR_LIST_FAIL, INSTRUCTOR_LIST_REQUEST, INSTRUCTOR_LIST_SUCCESS } from "../Constants/InstructorConstants"
+import { INSTRUCTOR_LIST_FAIL, INSTRUCTOR_LIST_REQUEST, INSTRUCTOR_LIST_SUCCESS } from "../Constants/TeamMemberConstants"
 
-export const listInstructors=()=>async(dispatch)=>{
+export const listTeammembers=()=>async(dispatch)=>{
     try {
         dispatch({type:INSTRUCTOR_LIST_REQUEST})
         const {data} = await axios.get(`${BASE_URL}/instructor`)

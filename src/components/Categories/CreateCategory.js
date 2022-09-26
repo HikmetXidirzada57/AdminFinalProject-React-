@@ -1,38 +1,40 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { categoryAdd, listCategories } from "../../Redux/Actions/CategoryActions";
-import { useForm } from "react-hook-form";
-import { CATEGORY_ADD_RESET, CATEGORY_LIST_SUCCESS } from "../../Redux/Constants/CategoryConstants";
-import { COURSE_UPDATE_RESET } from "../../Redux/Constants/CourseConstants";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { categoryAdd } from "../../Redux/Actions/CategoryActions";
 
-const CreateCategory = () => {
-  const {categories} = useSelector(state=>state.categoryList);
+
+const CreateCategory = ({categories}) => {
+  const [parentId,setParentId]=useState(0);
+  const [name,setName]=useState("");
   const dispatch=useDispatch();
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
-
-  const categorySubmitHandler=(data)=>{
-    dispatch(categoryAdd(data));
+  const sumbitHandler=(e)=>{
+    e.preventDefault()
+      dispatch(categoryAdd({parentCategoryId:parentId,name}))
   }
+   
   return (
     <div className="col-md-12 col-lg-4">
-      <form onSubmit={handleSubmit(categorySubmitHandler)}>
+      <form onSubmit={sumbitHandler}>
         <div className="mb-4">
           <label htmlFor="product_name" className="form-label">
             Name
           </label>
           <input
-            {...register("name",{required:true})}
+            // {...register("name",{required:true})}
             type="text"
             placeholder="Type here"
             className="form-control py-3"
             id="product_name"
+            value={name}
+            onChange={c=>setName(c.target.value)}
           />
         </div>
         <div className="mb-4">
           <label className="form-label">Parent Category</label>
           <select className="form-control" 
           name="parentCategoryId"
-             {...register("parentCategoryId")}
+          onChange={c=>setParentId(c.target.value)}
+          //  {...register("parentCategoryId")}
           >
             <option value={0}>None</option>
             {categories?.map(cate=>(
@@ -46,12 +48,6 @@ const CreateCategory = () => {
           </select>
         </div>
         
-         <div className="mb-4">
-         <label htmlFor="isFeatured" className="form-label">Is Featured</label>
-          <input name="isFeatured" {...register("isFeatured")}
-           type="checkbox" id="isFeatured"   />
-        </div>
-        {errors.exampleRequired && <span>This field is required</span>}
         <div className="d-grid">
           <button className="btn btn-primary py-3">Create category</button>
         </div>

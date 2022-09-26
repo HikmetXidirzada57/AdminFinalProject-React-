@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 import { listCategories } from "../../Redux/Actions/CategoryActions";
-import { courseAdd } from "../../Redux/Actions/CourseActions";
-import { listInstructors } from "../../Redux/Actions/InstructorActions";
-import { COURSE_CLEAR } from "../../Redux/Constants/CourseConstants";
+import { productAdd } from "../../Redux/Actions/ProductActions";
+import { PRODUCT_CLEAR } from "../../Redux/Constants/ProductConstants";
+import Message from "../LoadingError/Error";
 import Loading from "../LoadingError/Loading";
 import Toast from "../LoadingError/Toast";
-
+import FormControl from '@mui/material/FormControl';
+import Select from  'react-select'
+import { tagListAction } from "../../Redux/Actions/TagsAction";
+import { useForm } from "react-hook-form";
 const ToastObjects = {
   pauseOnFocusLoss: false,
   draggable: false,
@@ -18,48 +21,58 @@ const ToastObjects = {
 
 const AddProductMain = () => {
   const dispatch=useDispatch();
-  const [courseName,setCourseName]=useState("")
+  const [productName,setProductName]=useState("")
   const [description, setDescription] = useState("")
-  const [summary, setSummary] = useState("")
+  const [sku, setSku] = useState("")
   const [price,setPrice]=useState(0);
   const [discount, setDiscount] = useState(null)
-  const [isFeatured,setIsFeatured]=useState(false)
-  const [trailer, setTrailer] = useState("")
+  const [isSlider,setIsSlider]=useState(false)
+  const [isRecommend,setIsRecommend]=useState(false)
+  const [inStock, setInStock] = useState("")
   const [photoUrl, setPhotoUrl] = useState("")
-  const [instructorId, setInstructorId] = useState(null)
   const [categoryId, setCategoryId] = useState(null)
-  //Orxan Mellim sağlığınıza duaçıyız
+  const [tagName, setTagName] = React.useState([]);
+
+
+  const handleChange=(option)=>{
+   setTagName(option)
+  }
+  
+  const {tags}=useSelector(state=>state.tagList)
   const {categories} = useSelector(state=>state.categoryList)
-  const {instructors} = useSelector(state=>state.instructorList)
-  const {courseInfo, loading}=useSelector(state=>state.addedCourseRed)
+  const {productInfo, loading,error}=useSelector(state=>state.addedProductRed)
   const navigate=useHistory();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  
   useEffect(()=>{
-    if(courseInfo && courseInfo.status===200){
+    dispatch(tagListAction())
+    if(productInfo && productInfo.status===200){
       navigate.replace("/products");
-      dispatch({type:COURSE_CLEAR})
+      dispatch({type:PRODUCT_CLEAR})
+    }else{
+      dispatch(listCategories())
     }
-  },[courseInfo,navigate,dispatch])
-  useEffect(()=>{
-    dispatch(listCategories())
-    dispatch(listInstructors())
-  },[dispatch])
+  },[productInfo,navigate,dispatch])
   const submitHandler= (e)=>{
     e.preventDefault();
-    const newCourse={
-      name:courseName,
-      summary,
+    const newProduct={
+      name:productName,
+      sku,
       description,
       price:parseFloat(price),
-      discount:parseFloat(discount),
-      isFeatured,
-      trailerUrl:trailer,
+      dicount:parseFloat(discount), 
+      inStock,
+      isSlider,
+      productTags:tagName.map(c=>c.id),
+      isRecommend,
       photoUrl,
       categoryId:parseInt(categoryId),
-      instructorId:parseInt(instructorId),
-      reyting:0
+      rating:0
     }
-    dispatch(courseAdd(newCourse))
+    dispatch(productAdd(newProduct))
   }
+  console.log(categories)
+
   return (
     <>
       <Toast />
@@ -81,11 +94,11 @@ const AddProductMain = () => {
             <div className="col-xl-8 col-lg-8">
               <div className="card mb-4 shadow-sm">
                 <div className="card-body">
-                  {/* {error && <Message variant="alert-danger">{error}</Message>} */}
-                  {loading && <Loading />}
+                   {error && <Message variant="alert-danger">{error}</Message>}
+                   {loading && <Loading />}
                   <div className="mb-4">
                     <label htmlFor="product_title" className="form-label">
-                      Course Name
+                      Product Name
                     </label>
                     <input
                       type="text"
@@ -93,64 +106,48 @@ const AddProductMain = () => {
                       className="form-control"
                       id="product_title"
                       required
-                      value={courseName}
-                      onChange={e=>setCourseName(e.target.value)}
+                      value={productName}
+                      onChange={e=>setProductName(e.target.value)}
                     />
                   </div>
-                  <div className="mb-4">
-                    <label htmlFor="product_instructors" className="form-label">
-                      Instructors
-                    </label>
-                    <select id="product_instructors" 
-                       onChange={e=>setInstructorId(e.target.value)}
-                       className="form-control" defaultValue="-">
-                      <option disabled value="-">select Instructors...</option>
-                      {instructors?.map(instructor=>(
-                        <option key={instructor.id} 
-                          value={instructor.id}>{instructor.fullName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="product_categories" className="form-label">
-                      Categories
-                    </label>
-                    <select id="product_categories" 
-                       onChange={e=>setCategoryId(e.target.value)}
-                       className="form-control" defaultValue="-">
-                     <option option disabled value="-">select categories...</option>
-                      {categories?.map(category=>(
-                        <option key={category.categoryId} 
-                          value={category.categoryId}>{category.categoryName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="product_trailer" className="form-label">
-                      Trailer Url
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Type here"
-                      className="form-control"
-                      id="product_trailer"
-                      required
-                      value={trailer}
-                      onChange={e=>setTrailer(e.target.value)}
-                    />
-                  </div>
+                  {categories && categories.length>0 && (
+                       <div className="mb-4">
+                       <label htmlFor="product_categories" className="form-label">
+                         Categories
+                       </label>
+                       <select id="product_categories" 
+                          onChange={e=>setCategoryId(e.target.value)}
+                          className="form-control" defaultValue="-">
+                        <option option disabled value="-">select categories...</option>
+                         {categories?.map(cate=>(
+                           <option key={cate.categoryId}
+                             value={cate.categoryId}>{cate.name}</option>
+                         ))}
+                       </select>
+                     </div>
+                  )}
+                   <FormControl sx={{ m: 1, width: 400 }}>
+                   <label className="form-label">Tags</label>
+                      <Select
+                        onChange={handleChange}
+                        isMulti={true}
+                        options={tags}
+                        getOptionLabel={(opt)=>opt.name}
+                        getOptionValue={(opt)=>opt.id}
+                        />
+                   </FormControl>
                   <div className="mb-4">
                     <label htmlFor="product_summary" className="form-label">
-                      Summary
+                      SKU
                     </label>
                     <textarea
                       type="text"
-                      rows={5}
+                      rows={1}
                       placeholder="Type here"
                       className="form-control"
                       id="product_summary"
-                      value={summary}
-                      onChange={e=>setSummary(e.target.value)}
+                      value={sku}
+                      onChange={e=>setSku(e.target.value)}
                     />
                   </div>
                   <div className="mb-4">
@@ -181,15 +178,52 @@ const AddProductMain = () => {
                     />
                   </div>
                   <div className="mb-4">
+                    <label htmlFor="product_discount" className="form-label">
+                      In Stock
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Type here"
+                      className="form-control"
+                      id="product_discount"
+                      value={inStock}
+                      onChange={(e)=>setInStock(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-4">
                     <label htmlFor="product_featured" className="form-label">
-                      Is Featured?
+                      Is Slider?
                     </label>
                     <input
                       type="checkbox"
-                      id="product_price"
-                      value={isFeatured}
-                      onChange={(e)=>
-                        {setIsFeatured(e.target.checked ? true : false)}}
+                      id="isSlider"
+                      name="isSlider"
+                      {...register("isSlider",{required:false})}
+                      
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="product_featured" className="form-label">
+                      Is Recommend?
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="isRecommend"
+                      name="isRecommend"
+                      {...register("isRecommend",{required:false})}
+                    
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="product_featured" className="form-label">
+                      Is BestSeller?
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="isBestSeller"
+                      name="isBestSeller"
+                      {...register("isBestSeller",{required:false})}
+                    
                     />
                   </div>
                   <div className="mb-4">
@@ -199,7 +233,7 @@ const AddProductMain = () => {
                       className="form-control"
                       rows="7"
                       value={description}
-                      onChange={e=>setDescription(e.target.value)}
+                      onChange={(e)=>setDescription(e.target.value)}
                     ></textarea>
                   </div>
                   <div className="mb-4">
@@ -208,10 +242,12 @@ const AddProductMain = () => {
                       className="form-control"
                       type="text"
                       placeholder="Enter Image URL"
-                      value={photoUrl}
-                      onChange={(e)=>setPhotoUrl(e.target.value)}
+                      onChange={(img)=>setPhotoUrl(img.target.value)}
                     />
-                    <input className="form-control mt-3" type="file" />
+                    <input className="form-control mt-3"
+                     type="file"
+                     onChange={(img)=>setPhotoUrl(img.target.value)}
+                    />
                   </div>
                 </div>
               </div>

@@ -3,15 +3,16 @@ import CreateCategory from "./CreateCategory";
 import CategoriesTable from "./CategoriesTable";
 import { listCategories } from "../../Redux/Actions/CategoryActions";
 import {useDispatch, useSelector} from 'react-redux';
+import EditCategory from "./EditCategory";
 
-const MainCategories = () => {
+const MainCategories = ({categoryId}) => {
   const dispatch=useDispatch();
   const {categories}=useSelector(state=>state.categoryList);
   const {createSuccess}=useSelector(state=>state.categoryAdd);
   useEffect(()=>{
     dispatch(listCategories())
   },[dispatch])
-
+   
   useEffect(()=>{
     if(createSuccess){
       dispatch(listCategories())
@@ -27,7 +28,10 @@ const MainCategories = () => {
         <div className="card-body">
           <div className="row">
             {/* Create category */}
-            <CreateCategory />
+            {categoryId ?(
+              <EditCategory categoryId={categoryId}/>
+            ):  <CreateCategory categories={categories}/>
+          }
             {/* Categories table */}
             <CategoriesTable categories={categories} />
           </div>

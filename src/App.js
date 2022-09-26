@@ -14,7 +14,10 @@ import UsersScreen from "./screens/UsersScreen";
 import ProductEditScreen from "./screens/ProductEditScreen";
 import NotFound from "./screens/NotFound";
 import PrivateRouter from "./PrivateRouter";
-
+import BlogScreen from "./screens/BlogScreen";
+import AddBlog from "./components/Blogs/AddBlog";
+import BlogEditScreen from "./screens/BlogEditScreen";
+  
 function App() {
 
   // const { userInfo } = userLogin;
@@ -32,14 +35,20 @@ function App() {
         <Switch>
           <Route path="/" component={HomeScreen} exact />
           <Route path="/products" component={ProductScreen} />
+          <Route path="/blogs" component={BlogScreen} />
           <Route path="/category" component={CategoriesScreen} />
           <Route path="/orders" component={OrderScreen} />
           <Route path="/order/:id" component={OrderDetailScreen} />
           <Route path="/addproduct" component={AddProduct} />
+          <Route path="/addblog" component={AddBlog} />
           <Route path="/users" component={UsersScreen} />
           <Route
             path="/product/:id/edit"
             component={ProductEditScreen}
+          />
+            <Route
+            path="/blog/:id/edit"
+            component={BlogEditScreen}
           />
           <Route path="/login" component={Login} />
           <Route path="*" component={NotFound} />

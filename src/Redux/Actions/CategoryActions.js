@@ -7,7 +7,6 @@ export const listCategories=()=>async(dispatch)=>{
         dispatch({type:CATEGORY_LIST_REQUEST})
         const {data} = await axios.get(`${BASE_URL}/category/with-parent`)
         dispatch({type:CATEGORY_LIST_SUCCESS,payload:data})
-            
     } catch (error) {
         dispatch({type:CATEGORY_LIST_FAIL,payload:error})
     }
@@ -49,7 +48,7 @@ export const categoryAdd=(categoryData)=>async(dispatch,getState)=>{
 }
 
 
-export const courseEditAction=(id)=>async(dispatch)=>{
+export const categoryEditAction=(id)=>async(dispatch)=>{
     try {
         dispatch({type:CATEGORY_EDIT_REQUEST});
         const {data} = await axios.get(`${BASE_URL}/category/${id}`)
@@ -59,7 +58,7 @@ export const courseEditAction=(id)=>async(dispatch)=>{
     }
 }
 
-export const courseDelete=(id)=>async(dispatch)=>{
+export const categoryDelete=(id)=>async(dispatch)=>{
     try {
         dispatch({type:CATEGORY_DELETE_REQUEST})
         const {data} = await axios.delete(`${BASE_URL}/category/${id}`)

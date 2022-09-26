@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const CategoriesTable = ({categories}) => {
+  
   return (
     <div className="col-md-12 col-lg-8">
       <table className="table">
@@ -24,7 +25,7 @@ const CategoriesTable = ({categories}) => {
             <tr key={category.categoryId}>
             <td>
               <div className="form-check">
-                <input className="form-check-input" type="checkbox" value="" />
+                <input className="form-check-input" type="checkbox" value=""/>
               </div>
             </td>
             <td>{i+1}</td>
@@ -32,7 +33,7 @@ const CategoriesTable = ({categories}) => {
               <b>{category.name}</b>
             </td>
             <td>
-              <b>{category.parentName ?? "-"}</b>
+              <b>{category.parentName ?? "-"}</b> 
             </td>
             <td className="text-end">
               <div className="dropdown">
@@ -44,7 +45,7 @@ const CategoriesTable = ({categories}) => {
                   <i className="fas fa-ellipsis-h"></i>
                 </Link>
                 <div className="dropdown-menu">
-                  <Link className="dropdown-item" to={`/category/${category.categoryId}`}>
+                  <Link className="dropdown-item" to={`/category/edit/${category.categoryId}`}>
                     Edit info
                   </Link>
                   <Link className="dropdown-item text-danger" to="#">

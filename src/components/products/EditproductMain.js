@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Toast from "./../LoadingError/Toast";
-import { Link } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import Message from "../LoadingError/Error";
-import Loading from "../LoadingError/Loading";
 import { useDispatch, useSelector } from "react-redux";
-import { courseEditAction, courseUpdateAction } from "../../Redux/Actions/CourseActions";
-import { listInstructors } from "../../Redux/Actions/InstructorActions";
+import Loading from "../LoadingError/Loading";
+import Message from "../LoadingError/Error";
+import { productEditAction, productUpdateAction } from "../../Redux/Actions/ProductActions";
+import { PRODUCT_UPDATE_RESET } from "../../Redux/Constants/ProductConstants";
 import { listCategories } from "../../Redux/Actions/CategoryActions";
-import { COURSE_UPDATE_RESET } from "../../Redux/Constants/CourseConstants";
+import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select } from "@mui/material";
+import { useForm } from "react-hook-form";
+// import Message from "../LoadingError/Error";
+// import Loading from "../LoadingError/Loading";
+
 
 const ToastObjects = {
   pauseOnFocusLoss: false,
@@ -18,63 +22,75 @@ const ToastObjects = {
 };
 
 const EditProductMain = (props) => {
-  const { productId } = props;
+  const { id } = useParams();
+  console.log(id)
+  const history=useHistory();
   const dispatch=useDispatch();
   const {categories} = useSelector(state=>state.categoryList)
-  const {instructors} = useSelector(state=>state.instructorList)
-  const [courseName,setCourseName]=useState("")
-  const [description, setDescription] = useState("")
-  const [summary, setSummary] = useState("")
+  const {tags}=useSelector(state=>state.tagList)
+
+  const [productName,setProductName]=useState("")
+  const [description, setDescription] = useState("")  
+  const [sku, setSku] = useState("")
   const [price,setPrice]=useState(0);
   const [discount, setDiscount] = useState(null)
-  const [isFeatured,setIsFeatured]=useState(false)
-  const [trailer, setTrailer] = useState("")
+  const [isSlider,setIsSlider]=useState(false)
+  const [isRecommend,setIsRecommend]=useState(false)
+  const [inStock, setInStock] = useState("")
   const [photoUrl, setPhotoUrl] = useState("")
-  const [instructorId, setInstructorId] = useState(null)
+  // const [tag, setTag] = useState(null)  
   const [categoryId, setCategoryId] = useState(null)
-  const courseEditInfo=useSelector(state=>state.courseEdit);
-  const {course,loading,error}=courseEditInfo;
-  const {success:courseUpdate,loading:loadingUpdate,error:errorUpdate}=useSelector(state=>state.courseUpdate);
+  const productEditInfo=useSelector(state=>state.productEdit);
+  const {product,loading,error}=productEditInfo;
+  const {success:productUpdate,loading:loadingUpdate,error:errorUpdate}=useSelector(state=>state.productUpdate);
+  const [tagName, setTagName] = React.useState([]);
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    
+
   useEffect(()=>{
-    if(courseUpdate){
-      dispatch({ type: COURSE_UPDATE_RESET });
-      toast.success("Course Updated",ToastObjects);
+    if(productUpdate){
+      dispatch({ type: PRODUCT_UPDATE_RESET });
+      toast.success("Product Updated",ToastObjects);
+      history.push("/products")
     }else{
-      if(!course.courseName || course.courseId!==Number(productId)){
-        dispatch(courseEditAction(Number(productId)))
+      if(!product || product.id!==Number(id)){
+        dispatch(productEditAction(Number(id)))
         dispatch(listCategories())
-        dispatch(listInstructors())
       }else{
-          setCourseName(course.courseName)
-          setDescription(course.description)
-          setSummary(course.summary)
-          setDiscount(course.discount)
-          setPrice(course.price)
-          setIsFeatured(course.isFeatured)
-          setTrailer(course.trailerUrl)
-          setPhotoUrl(course.photoUrl)
-          setInstructorId(course.instructorId)
-          setCategoryId(course.categoryId)
+          setProductName(product.name)
+          setDescription(product.description)
+          setSku(product.sku)
+          setInStock(product.inStock)
+          setDiscount(product.dicount)
+          setPrice(product.price)
+          setIsSlider(product.isSlider)
+          setIsRecommend(product.isRecommend)
+          setPhotoUrl(product.photoUrl)
+          setCategoryId(product.categoryId)
       }
     }
-  },[productId,dispatch,course,courseUpdate])
-  console.log(course)
+  },[id,dispatch,product,productUpdate,history])
+  
   const submitHandler=(e)=>{
     e.preventDefault();
-    dispatch(courseUpdateAction({
-      id:productId,
-      name:courseName,
-      summary,
+    dispatch(productUpdateAction({
+      id,
+      name:productName,
+      sku,
+      inStock,
       description,
       price,
-      discount,
+      dicount:discount,
       photoUrl,
-      isFeatured,
-      trailerUrl:trailer,
+      isRecommend,
+      isSlider,
       categoryId,
-      instructorId,
     }))
   }
+
+  const handleChangeTag=(option)=>{
+    setTagName(option)
+   }
   return (
     <>
       <Toast />
@@ -108,7 +124,7 @@ const EditProductMain = (props) => {
                 <>
                 <div className="mb-4">
                     <label htmlFor="product_title" className="form-label">
-                      Course Name
+                      Product Name
                     </label>
                     <input
                       type="text"
@@ -116,26 +132,10 @@ const EditProductMain = (props) => {
                       className="form-control"
                       id="product_title"
                       required
-                      value={courseName}
-                      onChange={e=>setCourseName(e.target.value)}
+                      value={productName}
+                      onChange={e=>setProductName(e.target.value)}
                     />
                   </div>
-                  {instructors && (
-                    <div className="mb-4">
-                    <label htmlFor="product_instructors" className="form-label">
-                      Instructors
-                    </label>
-                    <select id="product_instructors" 
-                       onChange={e=>setInstructorId(e.target.value)}
-                       className="form-control" defaultValue={course.instructorId}>
-                      <option disabled value="-">select Instructors...</option>
-                      {instructors?.map(instructor=>(
-                        <option key={instructor.id} 
-                          value={instructor.id}>{instructor.fullName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  )}
                   {categories && (
                     <div className="mb-4">
                     <label htmlFor="product_categories" className="form-label">
@@ -143,42 +143,54 @@ const EditProductMain = (props) => {
                     </label>
                     <select id="product_categories" 
                         onChange={e=>setCategoryId(e.target.value)}
-                        className="form-control" defaultValue={course.categoryId}>
+                        className="form-control" defaultValue={product.categoryId}>
                       <option option disabled value="-">select categories...</option>
-                      {categories?.map(category=>(
+                      {categories?.map(category=>(  
                         <option key={category.categoryId} 
-                          value={category.categoryId}>{category.categoryName}</option>
+                          value={category.categoryId}>{category.name}</option>
                       ))}
                     </select>
                   </div>
 
                   )}
-               
+                  <div className="mb-4">
+                  <FormControl sx={{ m: 1, width: 300 }}>
+                   <label className="form-label">Tags</label>
+                      <Select
+                        onChange={handleChangeTag}
+                        isMulti={true}
+                        options={tags}
+                        getOptionLabel={(opt)=>opt.name}
+                        getOptionValue={(opt)=>opt.id}
+                        />
+                   </FormControl>
+                  </div>
+                 
                   <div className="mb-4">
                     <label htmlFor="product_trailer" className="form-label">
-                      Trailer Url
+                      Sku
                     </label>
                     <input
                       type="text"
                       placeholder="Type here"
                       className="form-control"
                       id="product_trailer"
-                      value={trailer}
-                      onChange={e=>setTrailer(e.target.value)}
+                      value={sku}
+                      onChange={e=>setSku(e.target.value)}
                     />
                   </div>
                   <div className="mb-4">
                     <label htmlFor="product_summary" className="form-label">
-                      Summary
+                      In Stock
                     </label>
                     <textarea
                       type="text"
-                      rows={5}
+                      rows={1}
                       placeholder="Type here"
                       className="form-control"
                       id="product_summary"
-                      value={summary}
-                      onChange={e=>setSummary(e.target.value)}
+                      value={inStock}
+                      onChange={e=>setInStock(e.target.value)}
                     />
                   </div>
                   <div className="mb-4">
@@ -210,15 +222,28 @@ const EditProductMain = (props) => {
                   </div>
                   <div className="mb-4">
                     <label htmlFor="product_featured" className="form-label">
-                      Is Featured?
+                      Is Slider?
                     </label>
                     <input
                       type="checkbox"
                       id="product_price"
-                      value={isFeatured}
-                      checked={isFeatured?"checked":""}
+                      value={isSlider}
+                      checked={isSlider?"checked":""}
                       onChange={(e)=>
-                        {setIsFeatured(e.target.checked ? true : false)}}
+                        {setIsSlider(e.target.checked ? true : false)}}
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="product_featured" className="form-label">
+                      Is Recommend?
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="product_price"
+                      value={isRecommend}
+                      checked={isRecommend?"checked":""}
+                      onChange={(e)=>
+                        {setIsRecommend(e.target.checked ? true : false)}}
                     />
                   </div>
                   <div className="mb-4">
